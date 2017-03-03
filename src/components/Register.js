@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {
   TextInput,
-  TouchableHighlight,
+  TouchableOpacity,
   Text,
   View
 } from 'react-native';
@@ -67,11 +67,11 @@ class Register extends Component {
           placeholder='Password'
           secureTextEntry
         />
-        <TouchableHighlight onPress={this.onRegisterPressed.bind(this)} style={styles.button}>
+        <TouchableOpacity onPress={this.onRegisterPressed.bind(this)} style={styles.button}>
           <Text style={styles.buttonText}>
             Register
           </Text>
-        </TouchableHighlight>
+        </TouchableOpacity>
 
         <Errors errors={this.state.errors} />
       </View>
