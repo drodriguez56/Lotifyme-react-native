@@ -6,6 +6,8 @@ import {
   View
 } from 'react-native';
 
+import { ROOT_URL } from '../../constants';
+
 
 class Register extends Component {
   constructor() {
@@ -21,7 +23,7 @@ class Register extends Component {
 
   async onRegisterPressed() {
     try {
-      let response = await fetch('http://localhost:3000/auth', {
+      let response = await fetch(`${ROOT_URL}/auth`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -37,6 +39,7 @@ class Register extends Component {
       let responseText = await response.text();
 
       if (response.status >= 200 && response.status < 300) {
+        this.setState({ error: [] });
         console.log(res.headers.get('access-token'));
       } else {
         let error = responseText;
