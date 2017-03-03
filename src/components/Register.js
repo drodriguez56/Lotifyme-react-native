@@ -5,8 +5,6 @@ import {
   Text,
   View
 } from 'react-native';
-import { connect } from 'react-redux';
-import * as actions from '../actions';
 
 
 class Register extends Component {
@@ -21,8 +19,33 @@ class Register extends Component {
     };
   }
 
-  onRegisterPressed = () => {
+  async onRegisterPressed() {
+    try {
+      let response = await fetch('http://localhost:3000/auth', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.state.email,
+          password: this.state.password,
+        })
+      });
 
+      let res = await response;
+      let responseText = await response.text();
+
+      if (response.status >= 200 && response.status < 300) {
+        console.log(res.headers.get('access-token'));
+      } else {
+        let error = responseText;
+        throw error;
+      }
+    } catch (error) {
+      let formErrors = JSON.parse(error).errors.full_messages;
+      this.setState({ errors: formErrors });
+    }
   }
 
   render() {
@@ -41,7 +64,7 @@ class Register extends Component {
           placeholder='Password'
           secureTextEntry
         />
-        <TouchableHighlight onPress={this.onRegisterPressed} style={styles.button}>
+        <TouchableHighlight onPress={this.onRegisterPressed.bind(this)} style={styles.button}>
           <Text style={styles.buttonText}>
             Register
           </Text>
@@ -103,4 +126,4 @@ const styles = {
   }
 };
 
-export default connect(null, actions)(Register);
+export default Register;
