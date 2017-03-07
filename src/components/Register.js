@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
   TextInput,
   TouchableOpacity,
@@ -6,49 +7,22 @@ import {
   View
 } from 'react-native';
 
-import { ROOT_URL } from '../../constants';
-
+import * as actions from '../actions';
 
 class Register extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     this.state = {
       email: '',
       password: '',
-      errors: [],
-      showProgress: false,
+      passwordConfirmation: ''
     };
   }
 
   async onRegisterPressed() {
-    try {
-      let response = await fetch(`${ROOT_URL}/auth`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: this.state.email,
-          password: this.state.password,
-        })
-      });
-
-      let res = await response;
-      let responseText = await response.text();
-
-      if (response.status >= 200 && response.status < 300) {
-        this.setState({ error: [] });
-        console.log(res.headers.get('access-token'));
-      } else {
-        let error = responseText;
-        throw error;
-      }
-    } catch (error) {
-      let formErrors = JSON.parse(error).errors.full_messages;
-      this.setState({ errors: formErrors });
-    }
+    let { email, password, passwordConfirmation } = this.state;
+    this.props.signupUser({ email, password, passwordConfirmation });
   }
 
   render() {
@@ -67,13 +41,20 @@ class Register extends Component {
           placeholder='Password'
           secureTextEntry
         />
+        <TextInput
+          value={this.state.passwordConfirmation}
+          onChangeText={(text) => this.setState({ passwordConfirmation: text })}
+          style={styles.input}
+          placeholder='Confirm Password'
+          secureTextEntry
+        />
         <TouchableOpacity onPress={this.onRegisterPressed.bind(this)} style={styles.button}>
           <Text style={styles.buttonText}>
             Register
           </Text>
         </TouchableOpacity>
 
-        <Errors errors={this.state.errors} />
+        <Errors errors={this.props.auth.errors} />
       </View>
     );
   }
@@ -82,6 +63,7 @@ class Register extends Component {
 const Errors = (props) => {
   return (
     <View>
+      {console.log(props)}
       {props.errors.map((error, i) => <Text key={i} style={styles.error}> {error} </Text>)}
     </View>
   );
@@ -128,5 +110,9 @@ const styles = {
     marginTop: 20
   }
 };
-
-export default Register;
+function mapStateToProps(state) {
+  return {
+    auth: state.auth
+  };
+}
+export default connect(mapStateToProps, actions)(Register);

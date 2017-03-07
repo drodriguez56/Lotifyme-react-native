@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
   TextInput,
   TouchableOpacity,
@@ -6,49 +7,19 @@ import {
   View
 } from 'react-native';
 
-import { ROOT_URL } from '../../constants';
-
+import * as actions from '../actions';
 
 class Login extends Component {
-  constructor() {
-    super();
-
+  constructor(props) {
+    super(props);
     this.state = {
       email: '',
       password: '',
-      error: '',
-      showProgress: false,
     };
   }
 
   async onLoginPressed() {
-    try {
-      let response = await fetch(`${ROOT_URL}/auth/sign_in`, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: this.state.email,
-          password: this.state.password,
-        })
-      });
-
-      let res = await response;
-      let responseText = await response.text();
-
-      if (response.status >= 200 && response.status < 300) {
-        this.setState({ error: '' })
-        console.log(res.headers.get('access-token'));
-      } else {
-        let error = responseText;
-        throw error;
-      }
-    } catch (error) {
-      let formErrors = JSON.parse(error).errors;
-      this.setState({ error: formErrors[0] });
-    }
+    this.props.loginUser({ email: this.state.email, password: this.state.password });
   }
 
   render() {
@@ -74,13 +45,12 @@ class Login extends Component {
         </TouchableOpacity>
 
         <Text style={styles.error}>
-          {this.state.error} 
+          {this.props.auth.errors.length > 0 ? this.props.auth.errors : '' } 
         </Text>
       </View>
     );
   }
 }
-
 
 const styles = {
   container: {
@@ -123,4 +93,10 @@ const styles = {
   }
 };
 
-export default Login;
+function mapStateToProps(state) {
+  return {
+    auth: state.auth
+  };
+}
+
+export default connect(mapStateToProps, actions)(Login);
